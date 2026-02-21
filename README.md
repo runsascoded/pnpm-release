@@ -1,4 +1,4 @@
-# gh-pnpm-release
+# pnpm-release
 
 GitHub Action for publishing npm packages with pnpm and creating GitHub releases.
 
@@ -14,7 +14,7 @@ on:
     tags: ['v*']
 jobs:
   release:
-    uses: runsascoded/gh-pnpm-release/.github/workflows/release.yml@v1
+    uses: runsascoded/pnpm-release/.github/workflows/release.yml@v1
     secrets:
       npm_token: ${{ secrets.NPM_TOKEN }}
 ```
@@ -34,7 +34,7 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: runsascoded/gh-pnpm-release@v1
+      - uses: runsascoded/pnpm-release@v1
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
 ```
@@ -77,7 +77,7 @@ The action handles building, publishing to npm, and creating the GitHub release 
 
 ## See Also
 
-- [gh-pnpm-dist] - Sibling action for building and maintaining npm package distribution branches
+- [pnpm-dist] - Sibling action for building and maintaining npm package distribution branches
 
 [use-url-params]: https://github.com/runsascoded/use-url-params
 [use-url-params-workflow]: https://github.com/runsascoded/use-url-params/blob/main/.github/workflows/release.yml
@@ -85,7 +85,7 @@ The action handles building, publishing to npm, and creating the GitHub release 
 [use-hotkeys-workflow]: https://github.com/runsascoded/use-hotkeys/blob/main/.github/workflows/release.yml
 [og-lambda]: https://github.com/runsascoded/og-lambda
 [og-lambda-workflow]: https://github.com/runsascoded/og-lambda/blob/main/.github/workflows/release.yml
-[gh-pnpm-dist]: https://github.com/runsascoded/gh-pnpm-dist
+[pnpm-dist]: https://github.com/runsascoded/pnpm-dist
 
 ## License
 
