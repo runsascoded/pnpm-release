@@ -21,6 +21,10 @@ inputs:
     description: 'Additional args for pnpm publish'
     required: false
     default: '--access public --no-git-checks'
+  pkg:
+    description: 'Package subdirectory to publish (monorepo mode). If set, build/publish/info steps target this directory.'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -43,19 +47,21 @@ runs:
 
     - name: Build
       shell: bash
-      run: ${{ inputs.build_command }}
+      run: ${{ inputs.build_command != 'pnpm run build' && inputs.build_command || (inputs.pkg && format('pnpm run build --filter ./{0}', inputs.pkg) || inputs.build_command) }}
 
     - name: Get package info
       id: pkg
       shell: bash
       run: |
-        PKG_NAME=$(jq -r .name package.json)
-        PKG_VERSION=$(jq -r .version package.json)
+        PKG_DIR="${{ inputs.pkg || '.' }}"
+        PKG_NAME=$(jq -r .name "$PKG_DIR/package.json")
+        PKG_VERSION=$(jq -r .version "$PKG_DIR/package.json")
         echo "name=$PKG_NAME" >> $GITHUB_OUTPUT
         echo "version=$PKG_VERSION" >> $GITHUB_OUTPUT
 
     - name: Publish to npm
       shell: bash
+      working-directory: ${{ inputs.pkg || '.' }}
       run: pnpm publish ${{ inputs.publish_args }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}

@@ -18,6 +18,10 @@ on:
         description: 'Additional args for pnpm publish'
         type: string
         default: '--access public --no-git-checks'
+      pkg:
+        description: 'Package subdirectory to publish (monorepo mode)'
+        type: string
+        default: ''
     secrets:
       npm_token:
         description: 'NPM authentication token'
@@ -37,3 +41,4 @@ jobs:
           pnpm_version: ${{ inputs.pnpm_version }}
           build_command: ${{ inputs.build_command }}
           publish_args: ${{ inputs.publish_args }}
+          pkg: ${{ inputs.pkg }}
