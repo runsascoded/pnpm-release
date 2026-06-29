@@ -2,6 +2,13 @@
 
 GitHub Action for publishing npm packages with pnpm and creating GitHub releases.
 
+Authenticate either with an `npm_token` **or**, by omitting it, via [OIDC trusted
+publishing](https://docs.npmjs.com/trusted-publishers) — no token to rotate or
+expire. For OIDC, configure a Trusted Publisher for the package on npm (pointing
+at this repo + workflow) and grant the job `permissions: id-token: write` (the
+reusable workflow already does). When `npm_token` is empty the action takes the
+OIDC path automatically.
+
 ## Quick Start
 
 ### Option 1: Reusable Workflow (recommended)
@@ -15,8 +22,8 @@ on:
 jobs:
   release:
     uses: runsascoded/pnpm-release/.github/workflows/release.yml@v1
-    secrets:
-      npm_token: ${{ secrets.NPM_TOKEN }}
+    # OIDC trusted publishing (recommended): omit `secrets` entirely.
+    # Token auth: pass `secrets: { npm_token: ${{ secrets.NPM_TOKEN }} }`.
 ```
 
 ### Option 2: Composite Action
@@ -35,8 +42,8 @@ jobs:
       id-token: write
     steps:
       - uses: runsascoded/pnpm-release@v1
-        with:
-          npm_token: ${{ secrets.NPM_TOKEN }}
+        # OIDC trusted publishing (recommended): drop the `with:` block.
+        # Token auth: add `with: { npm_token: ${{ secrets.NPM_TOKEN }} }`.
 ```
 
 ## How It Works
@@ -44,7 +51,7 @@ jobs:
 1. Checks out your code at the tag
 2. Sets up pnpm and Node.js, installs dependencies
 3. Runs your build command (default: `pnpm run build`)
-4. Publishes to npm with `pnpm publish`
+4. Publishes to npm with `pnpm publish` — token auth if `npm_token` is set, else OIDC trusted publishing
 5. Creates a GitHub release with auto-generated release notes
 6. Outputs links to NPM and GitHub releases (in logs and as workflow annotations)
 
@@ -52,7 +59,7 @@ jobs:
 
 | Input | Description | Default |
 |-------|-------------|---------|
-| `npm_token` | NPM authentication token | (required) |
+| `npm_token` | NPM authentication token. Omit for OIDC trusted publishing (needs `id-token: write` + a Trusted Publisher configured on npm). | `''` |
 | `node_version` | Node.js version | `'20'` |
 | `pnpm_version` | pnpm version | `'10'` |
 | `build_command` | Build command to run | `'pnpm run build'` |

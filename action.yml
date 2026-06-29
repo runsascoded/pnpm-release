@@ -3,8 +3,9 @@ description: 'Build, publish to NPM, and create GitHub release on tag push'
 
 inputs:
   npm_token:
-    description: 'NPM authentication token'
-    required: true
+    description: 'NPM authentication token. Leave empty to publish via OIDC trusted publishing (requires `permissions: id-token: write` on the calling job and a Trusted Publisher configured for the package on npm).'
+    required: false
+    default: ''
   node_version:
     description: 'Node.js version to use'
     required: false
@@ -59,12 +60,22 @@ runs:
         echo "name=$PKG_NAME" >> $GITHUB_OUTPUT
         echo "version=$PKG_VERSION" >> $GITHUB_OUTPUT
 
-    - name: Publish to npm
+    # Two publish paths: a provided token wins (sets NODE_AUTH_TOKEN); an empty
+    # token means OIDC trusted publishing — we must NOT set NODE_AUTH_TOKEN (even
+    # to ""), since an empty authToken in .npmrc preempts the OIDC exchange.
+    - name: Publish to npm (token auth)
+      if: inputs.npm_token != ''
       shell: bash
       working-directory: ${{ inputs.pkg || '.' }}
       run: pnpm publish ${{ inputs.publish_args }}
       env:
         NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
+
+    - name: Publish to npm (OIDC trusted publishing)
+      if: inputs.npm_token == ''
+      shell: bash
+      working-directory: ${{ inputs.pkg || '.' }}
+      run: pnpm publish ${{ inputs.publish_args }}
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v3

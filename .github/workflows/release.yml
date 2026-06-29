@@ -24,8 +24,8 @@ on:
         default: ''
     secrets:
       npm_token:
-        description: 'NPM authentication token'
-        required: true
+        description: 'NPM authentication token. Omit to publish via OIDC trusted publishing (the job already grants `id-token: write`; configure a Trusted Publisher for the package on npm).'
+        required: false
 
 jobs:
   release:
