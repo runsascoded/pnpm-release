@@ -77,8 +77,10 @@ runs:
       working-directory: ${{ inputs.pkg || '.' }}
       run: |
         # OIDC trusted publishing requires npm >= 11.5.1 (pnpm publish delegates
-        # the registry publish to npm). Node 20 ships npm ~10.8, so upgrade.
-        npm install -g npm@latest
+        # the registry publish to npm). Node 20 ships npm ~10.8, so upgrade — but
+        # pin to npm@11 (supports Node ^20.17 || >=22.9): npm@latest is now 12.x,
+        # which requires Node >=22.22 and EBADENGINEs on this action's default Node 20.
+        npm install -g npm@11
         # setup-node's registry-url writes `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`
         # into the userconfig npmrc. With no token that resolves to an empty token,
         # preempting the OIDC exchange — strip it so the publish falls through to OIDC.
